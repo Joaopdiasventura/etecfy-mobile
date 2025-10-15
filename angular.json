@@ -44,7 +44,7 @@
           "configurations": {
             "production": {
               "define": {
-                "API_URL": "'https://etecfy-api.joaopdias.dedyn.io'"
+                "API_URL": "'https://etecfy-server.vercel.app'"
               },
               "budgets": [
                 {
