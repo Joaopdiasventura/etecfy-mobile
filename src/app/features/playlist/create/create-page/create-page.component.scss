@@ -1,0 +1,174 @@
+@use "../../../../../styles/tokens" as *;
+@use "sass:color";
+
+.create-playlist {
+  padding-bottom: 88px;
+}
+
+.create-playlist h2 {
+  margin: $space-4 0;
+}
+
+.create-playlist-form {
+  display: grid;
+  gap: $space-4;
+  max-width: 640px;
+  @include up($bp-lg) {
+    max-width: 760px;
+  }
+}
+
+.field {
+  display: grid;
+  gap: $space-2;
+}
+
+.field input[type="text"] {
+  width: 100%;
+  padding: $space-2 $space-3;
+  background: $color-elev;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text;
+  font-size: $fs-sm;
+}
+
+.actions {
+  display: flex;
+  gap: $space-2;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 $space-3;
+  border-radius: $radius-full;
+  min-width: 120px;
+}
+
+.btn.primary {
+  background: $color-primary;
+  color: $color-text;
+}
+.btn.primary:hover {
+  background: $color-primary-600;
+}
+
+.btn.secondary {
+  background: $color-elev;
+  color: $color-text;
+  border: 1px solid $color-border;
+}
+.btn.secondary:hover {
+  background: color.adjust($color-elev, $lightness: 2%);
+}
+
+.hint {
+  color: $color-muted;
+  font-size: $fs-xs;
+}
+
+// Songs selectable list
+.songs-section {
+  margin-top: $space-6;
+}
+
+.grid-songs {
+  margin-top: $space-3;
+  display: grid;
+  gap: $space-2;
+  height: calc(100vh - 320px);
+  overflow: auto;
+}
+
+.select-song-card {
+  display: grid;
+  grid-template-columns: auto 56px 1fr;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2;
+  border-radius: $radius-md;
+  border: 1px solid $color-border;
+  background: $color-surface;
+}
+
+.select-song-card input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.select-song-card .thumb img {
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-sm;
+  object-fit: cover;
+}
+
+.select-song-card .meta {
+  min-width: 0;
+}
+
+.select-song-card .row1,
+.select-song-card .row2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.select-song-card .title {
+  font-size: $fs-sm;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-song-card .artist {
+  color: $color-muted;
+  font-size: $fs-xs;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-song-card .desc {
+  display: none;
+  @include up($bp-md) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    color: $color-muted;
+    font-size: $fs-sm;
+    margin-left: $space-2;
+  }
+}
+.select-song-card .duration {
+  color: $color-muted;
+  font-size: $fs-xs;
+  flex-shrink: 0;
+  margin-left: $space-2;
+}
+
+.list-skeleton {
+  color: $color-muted;
+  font-size: $fs-sm;
+  text-align: center;
+  padding: $space-3 0;
+}
+
+.infinite-sentinel {
+  height: 24px;
+}
+
+// Mobile tweaks
+@include down($bp-sm) {
+  .actions {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,252 @@
+@use "../../../../../styles/tokens" as *;
+
+// Layout with sidebar (same pattern as Home)
+.layout {
+  display: flex;
+  min-height: 100vh;
+  padding-bottom: 76px; // space for bottom player
+}
+
+.sidebar-wrapper {
+  width: 260px;
+  flex-shrink: 0;
+  background: $color-surface;
+  border-right: 1px solid $color-border;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: sticky;
+  top: 0;
+
+  @include down($bp-md) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    transition: transform 200ms ease;
+    z-index: 1050;
+  }
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.main {
+  height: 92.5vh;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  padding: $space-3 $space-4;
+  /* Deixa o IonContent controlar o scroll; evita overflow duplo */
+  overflow: visible;
+}
+
+.drawer-open {
+  .overlay {
+    @include down($bp-md) {
+      display: block;
+    }
+  }
+  .sidebar-wrapper {
+    @include down($bp-md) {
+      transform: translateX(0);
+    }
+  }
+}
+
+.profile-content {
+  padding-bottom: 88px; // leave space for the player
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin: $space-4 0 $space-2 0;
+}
+.user-info .avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: $radius-full;
+  background: $color-primary;
+  color: $color-text;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;
+  text-transform: uppercase;
+}
+.user-info .name {
+  margin: 0;
+}
+.user-info .email {
+  margin: 2px 0 0 0;
+  color: $color-muted;
+}
+
+.section-title {
+  margin: $space-4 0 $space-3 0;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  flex-wrap: wrap;
+  row-gap: $space-2;
+}
+
+.create-playlist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-3;
+  height: 40px;
+  background: $color-primary;
+  border-radius: $radius-full;
+  color: $color-text;
+  transition: background-color 150ms ease;
+  max-width: 100%;
+  min-width: 0; // allow shrink inside flex
+  flex: 0 1 auto;
+
+  &:hover {
+    background: $color-primary-600;
+  }
+
+  lucide-icon {
+    width: 18px;
+    height: 18px;
+  }
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @include down($bp-md) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.heading .section-title {
+  flex: 1 1 auto;
+  min-width: 0; // prevent overflow with long titles
+}
+
+
+.grid-playlists {
+  display: grid;
+  grid-template-columns: 1fr; // mobile
+  gap: $space-3;
+  /* Sem altura fixa e sem overflow para evitar scroll indesejado */
+  padding-bottom: $space-6;
+
+  @include up($bp-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @include up($bp-md) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @include up($bp-lg) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Ativa scroll interno apenas quando houver muitos itens (>= 7 colunas) */
+@supports selector(:has(*)) {
+  .grid-playlists:has(ion-row > ion-col:nth-child(n+7)) {
+    max-height: calc(
+      100vh - 280px - var(--ion-safe-area-bottom, env(safe-area-inset-bottom))
+    );
+    overflow: auto;
+  }
+}
+
+.playlist-card {
+  display: flex;
+  gap: $space-3;
+  padding: $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  &:hover {
+    background: $color-elev;
+    border-color: $color-elev;
+  }
+  position: relative;
+}
+.playlist-card .thumb img {
+  width: 72px;
+  height: 72px;
+  border-radius: $radius-md;
+  object-fit: cover;
+
+  @include up($bp-sm) {
+    width: 88px;
+    height: 88px;
+  }
+  @include up($bp-lg) {
+    width: 100px;
+    height: 100px;
+  }
+}
+.playlist-card .title {
+  margin: 0 0 2px 0;
+}
+.playlist-card .subtitle {
+  margin: 0 0 4px 0;
+  color: $color-muted;
+  font-size: $fs-sm;
+}
+.playlist-card .artist {
+  margin: 0;
+  color: $color-muted;
+  font-size: $fs-xs;
+}
+
+.playlist-card .delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: transparent;
+  color: $color-muted;
+  &:hover {
+    background: $color-elev;
+    color: $color-text;
+  }
+}
+
+.infinite-sentinel {
+  height: 24px;
+}
+
+@media (min-width: #{-md}) {
+  .grid-playlists {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

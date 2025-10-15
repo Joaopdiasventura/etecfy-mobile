@@ -1,0 +1,68 @@
+@use "../../../../styles/tokens" as *;
+
+.app-header {
+  height: 7.2vh;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba($color-bg, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid $color-border;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 $space-2;
+  max-width: $container;
+  width: 100%;
+  margin: 0 auto;
+  @include gaps($space-2, $space-3);
+
+  @include up($bp-md) {
+    height: 64px;
+  }
+}
+
+.menu-btn {
+  @include up($bp-md) {
+    display: none;
+  }
+}
+
+.nav-controls {
+  display: none;
+
+  @include up($bp-md) {
+    display: inline-flex;
+    gap: $space-2;
+  }
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-left: 0;
+
+  @include up($bp-md) {
+    /* garante que a busca não cresça além do desejado e mantenha alinhamento */
+    margin-left: 0;
+  }
+
+  ion-searchbar {
+    width: 100%;
+    --background: #1a1a1d;
+    --box-shadow: none;
+    --border-radius: #{$radius-full};
+    --color: #{$color-text};
+    --placeholder-color: #{$color-muted};
+    --icon-color: #{$color-muted};
+    --clear-button-color: #{$color-muted};
+  }
+}

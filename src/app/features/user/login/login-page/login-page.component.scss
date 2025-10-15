@@ -1,0 +1,158 @@
+@use "../../../../../styles/tokens.scss" as *;
+
+.auth {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: $space-6 $space-4;
+  background: linear-gradient(180deg, $color-bg, $color-surface);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $space-6;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.auth-header {
+  position: relative;
+  padding-top: 1rem;
+  text-align: center;
+  margin-bottom: $space-6;
+  color: $color-text;
+
+  lucide-icon {
+    color: $color-primary;
+    width: 28px;
+    height: 28px;
+  }
+  h1 {
+    margin: $space-2 0 2px;
+    font-size: 22px;
+  }
+  p {
+    color: $color-muted;
+    font-size: $fs-sm;
+    margin: 0;
+  }
+}
+
+.alert {
+  background: rgba($color-primary, 0.15);
+  border: 1px solid $color-primary;
+  color: $color-text;
+  padding: $space-2 $space-3;
+  border-radius: $radius-sm;
+  margin-bottom: $space-4;
+}
+
+.field {
+  margin-bottom: $space-4;
+}
+.field label {
+  display: block;
+  color: $color-text;
+  font-size: $fs-sm;
+  margin-bottom: 6px;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrap lucide-icon {
+  position: absolute;
+  left: $space-3;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $color-muted;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: $space-2 $space-3;
+  padding-left: 36px;
+  background: $color-elev;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text;
+  font-size: $fs-sm;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+
+  &::placeholder {
+    color: $color-muted;
+  }
+  &:focus {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.2);
+  }
+}
+
+.error {
+  display: block;
+  color: $color-primary-600;
+  margin-top: 6px;
+  font-size: $fs-xs;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $space-5;
+}
+
+.muted {
+  color: $color-muted;
+  font-size: $fs-sm;
+}
+
+.auth-footer {
+  margin-top: $space-5;
+  display: flex;
+  gap: $space-2;
+  justify-content: center;
+  color: $color-muted;
+}
+.auth-footer a {
+  color: $color-text;
+}
+
+.back-button {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: transparent;
+  border: 1px solid $color-border;
+  border-radius: 50%;
+  color: $color-muted;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: $color-elev;
+  border-color: $color-primary;
+  color: $color-text;
+}
+
+.back-button lucide-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}

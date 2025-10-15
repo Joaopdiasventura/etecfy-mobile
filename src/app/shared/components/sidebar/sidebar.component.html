@@ -1,0 +1,57 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <lucide-icon name="music"></lucide-icon>
+      <span class="brand-name">Song Streaming</span>
+    </div>
+    @if (onClose) {
+    <ion-button fill="clear" class="icon-btn close-btn">
+      <lucide-icon name="x"></lucide-icon>
+    </ion-button>
+    }
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">
+      <ion-menu-toggle autoHide="true">
+        <a routerLink="/home" class="nav-item">
+          <lucide-icon name="house"></lucide-icon>
+          Início
+        </a>
+      </ion-menu-toggle>
+      @if (currentUser()) {
+      <ion-menu-toggle autoHide="true">
+        <a routerLink="/user" class="nav-item">
+          <lucide-icon name="user"></lucide-icon>
+          Perfil
+        </a>
+      </ion-menu-toggle>
+      <!-- <a routerLink="/song/add" class="nav-item">
+        <lucide-icon name="upload"></lucide-icon>
+        Adicionar musica
+      </a> -->
+      } @else {
+      <ion-menu-toggle autoHide="true">
+        <a routerLink="/user/login" class="nav-item">
+          <lucide-icon name="log-in"></lucide-icon>
+          Entrar
+        </a>
+      </ion-menu-toggle>
+      <ion-menu-toggle autoHide="true">
+        <a routerLink="/user/create" class="nav-item">
+          <lucide-icon name="user-plus"></lucide-icon>
+          Criar conta
+        </a>
+      </ion-menu-toggle>
+      }
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <ion-menu-toggle autoHide="true">
+      <ion-button class="btn-footer primary" (click)="logOut()" fill="solid">
+        Sair
+        <lucide-icon name="log-out"></lucide-icon>
+      </ion-button>
+    </ion-menu-toggle>
+  </div>
+</aside>

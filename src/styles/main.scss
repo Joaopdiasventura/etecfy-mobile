@@ -1,0 +1,566 @@
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+@import "./tokens";
+
+/* Ionic theme overrides */
+:root {
+  /* Primary color (dark red) */
+  --ion-color-primary: #8b0f0f;
+  --ion-color-primary-rgb: 139, 15, 15;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #780d0d; /* slightly darker */
+  --ion-color-primary-tint: #a11818;  /* slightly lighter */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: $color-bg;
+  color: $color-text;
+  font-family: $font-sans;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.container {
+  max-width: $container;
+  margin: 0 auto;
+  padding: 0 $space-4;
+}
+
+// Reusable icon-only button
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0; // ensure perfect centering of inline SVG
+  border-radius: $radius-full;
+  color: $color-text;
+  background: transparent;
+  transition: background-color 150ms ease, color 150ms ease,
+    transform 100ms ease;
+
+  &:hover {
+    background: $color-elev;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  lucide-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Normalize Lucide icon alignment everywhere
+lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+lucide-icon svg {
+  display: block;
+}
+
+// Scrollbar design (minimal, dark, with primary accent)
+@mixin scrollbar($thumb, $track, $thumb-hover, $thumb-active, $size: 10px) {
+  scrollbar-width: thin; // Firefox
+  scrollbar-color: $thumb $track; // Firefox
+
+  &::-webkit-scrollbar {
+    width: $size;
+    height: $size;
+  }
+  &::-webkit-scrollbar-track {
+    background: $track;
+    border-radius: $radius-full;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $thumb;
+    border-radius: $radius-full;
+    border: 2px solid $track; // creates gap, feels lighter
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $thumb-hover;
+  }
+  &::-webkit-scrollbar-thumb:active {
+    background-color: $thumb-active;
+  }
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+// Apply global scrollbar styling to all scrollable elements
+* {
+  @include scrollbar(
+    $color-primary,
+    $color-elev,
+    $color-primary-600,
+    $color-primary-700,
+    10px
+  );
+}
+
+// Player styles (moved from component to reduce per-component CSS budgets)
+
+.player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-surface;
+  border-top: 1px solid $color-border;
+  /* Extra bottom padding to avoid gesture/navigation bar overlap */
+  padding: $space-2 $space-3 calc(#{$space-3} + var(--ion-safe-area-bottom, env(safe-area-inset-bottom)));
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: $space-2;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  @include gaps($space-2, $space-3);
+}
+.row.track-info {
+  min-width: 0;
+}
+.row.track-info img {
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-md;
+  object-fit: cover;
+}
+.row.track-info .text {
+  min-width: 0;
+}
+.row.track-info .title {
+  margin: 0;
+  color: $color-text;
+  font-size: $fs-lg;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row.track-info .artist {
+  color: $color-muted;
+  font-size: $fs-sm;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row.progress {
+  margin-top: $space-2;
+}
+.row.progress .time {
+  color: $color-muted;
+  font-size: $fs-xs;
+}
+.row.controls {
+  justify-content: center;
+  gap: $space-2;
+}
+.row.controls .play-btn {
+  @extend .icon-btn;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  background: $color-primary;
+  color: $color-text;
+}
+.row.controls .play-btn:hover {
+  background: $color-primary-600;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  min-width: 0;
+}
+.left img {
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-md;
+  object-fit: cover;
+}
+.left .title {
+  margin: 0;
+  color: $color-text;
+}
+.left .artist {
+  color: $color-muted;
+  font-size: $fs-sm;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+}
+
+.controls-row {
+  display: inline-flex;
+  align-items: center;
+  @include gaps($space-2, $space-3);
+}
+.controls-row .play-btn.lg {
+  @extend .icon-btn;
+  width: 44px;
+  height: 44px;
+  background: $color-primary;
+}
+.controls-row .play-btn.lg:hover {
+  background: $color-primary-600;
+}
+
+.progress-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: $space-2;
+  width: 100%;
+}
+.progress-row .time {
+  color: $color-muted;
+  font-size: $fs-xs;
+}
+
+.right {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: -2;
+}
+.right lucide-icon {
+  width: 16px;
+  height: 16px;
+  color: $color-muted;
+}
+
+// Range styling (scoped to .player)
+.player input[type="range"] {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: $thumb-size; // ensure thumb fits
+  background: transparent;
+  border: none;
+}
+// Ionic range equivalents
+.player ion-range {
+  width: 100%;
+  --bar-background: #{$range-bg};
+  --bar-background-active: #{$range-color};
+  --knob-background: #{$range-color};
+  --height: #{$range-height};
+}
+.player input[type="range"]::-webkit-slider-runnable-track {
+  height: $range-height;
+  background: linear-gradient($range-color, $range-color) 0 /
+      var(--progress, 0%) 100% no-repeat,
+    $range-bg;
+  border-radius: $radius-full;
+}
+.player input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: $thumb-size;
+  height: $thumb-size;
+  background: $range-color;
+  border-radius: $radius-full;
+  margin-top: calc((#{$range-height} - #{$thumb-size}) / 2);
+}
+.player input[type="range"]::-moz-range-track {
+  height: $range-height;
+  background: $range-bg;
+  border-radius: $radius-full;
+}
+.player input[type="range"]::-moz-range-progress {
+  height: $range-height;
+  background: $range-color;
+  border-radius: $radius-full 0 0 $radius-full;
+}
+.player input[type="range"]::-moz-range-thumb {
+  width: $thumb-size;
+  height: $thumb-size;
+  background: $range-color;
+  border-radius: $radius-full;
+}
+
+@media (min-width: #{-md}) {
+  .player {
+    grid-template-columns: 1fr 1.2fr 1fr;
+    align-items: center;
+    column-gap: -4;
+  }
+  .right {
+    display: inline-flex;
+  }
+}
+
+.player-header {
+  /* Put header in normal flow so it doesn't overlap content */
+  position: static;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-1 $space-2;
+  margin-bottom: $space-1;
+  background: transparent;
+  backdrop-filter: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .close-btn,
+  .expand-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    lucide-icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.default {
+  color: $color-text;
+}
+
+.active {
+  color: $color-primary;
+}
+
+// Fullscreen overlay for Player details
+.player-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: $color-surface;
+  color: $color-text;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+.player-overlay.open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.player-overlay .overlay-header {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  position: sticky;
+  top: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid $color-border;
+}
+.player-overlay .overlay-header .spacer {
+  flex: 1 1 auto;
+}
+
+.player-overlay .overlay-content {
+  flex: 1 1 auto;
+  padding: $space-4;
+  /* Keep content above system gesture area */
+  padding-bottom: calc(#{$space-4} + var(--ion-safe-area-bottom, env(safe-area-inset-bottom)));
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-6;
+}
+
+.player-overlay .overlay-controls {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(8px);
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  padding: $space-2 $space-3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: auto;
+}
+
+.player-overlay .cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.player-overlay .cover img {
+  width: min(80vw, 360px);
+  height: min(80vw, 360px);
+  max-width: 100%;
+  border-radius: $radius-lg;
+  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.player-overlay .meta {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.player-overlay .meta .title {
+  margin: 0 0 $space-1 0;
+  font-size: clamp(24px, 4vw, 36px);
+}
+.player-overlay .meta .artist {
+  margin: 0 0 $space-3 0;
+  color: $color-muted;
+}
+.player-overlay .meta .description {
+  color: $color-text;
+}
+
+.player-overlay .lyrics {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: $space-3;
+  background: $color-elev;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+}
+.player-overlay .lyrics h3 {
+  margin-top: 0;
+}
+.player-overlay .lyrics-text {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: clamp(14px, 2.2vw, 18px);
+  letter-spacing: 0.2px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: #{-md}) {
+  .player-overlay .overlay-content {
+    grid-template-columns: 1fr 1.2fr;
+    align-items: start;
+  }
+}
+
+// Range styling for overlay
+.player-overlay input[type="range"] {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: $thumb-size; // ensure thumb fits
+  background: transparent;
+  border: none;
+}
+.player-overlay input[type="range"]::-webkit-slider-runnable-track {
+  height: $range-height;
+  background: linear-gradient($range-color, $range-color) 0 /
+      var(--progress, 0%) 100% no-repeat,
+    $range-bg;
+  border-radius: $radius-full;
+}
+.player-overlay input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: $thumb-size;
+  height: $thumb-size;
+  background: $range-color;
+  border-radius: $radius-full;
+  margin-top: calc((#{$range-height} - #{$thumb-size}) / 2);
+}
+.player-overlay input[type="range"]::-moz-range-track {
+  height: $range-height;
+  background: $range-bg;
+  border-radius: $radius-full;
+}
+.player-overlay input[type="range"]::-moz-range-progress {
+  height: $range-height;
+  background: $range-color;
+  border-radius: $radius-full 0 0 $radius-full;
+}
+.player-overlay input[type="range"]::-moz-range-thumb {
+  width: $thumb-size;
+  height: $thumb-size;
+  background: $range-color;
+  border-radius: $radius-full;
+}

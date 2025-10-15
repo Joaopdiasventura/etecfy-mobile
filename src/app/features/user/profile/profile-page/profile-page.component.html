@@ -1,0 +1,61 @@
+<ion-content fullscreen>
+  <app-header (searchEvent)="onSearchChange($event)"></app-header>
+  <main class="content">
+    <div class="container">
+        @let u = currentUser(); @if (u) {
+        <section class="user-info">
+          <div class="avatar" aria-hidden="true">
+            {{ u.name.charAt(0) || "?" }}
+          </div>
+          <div class="meta">
+            <h2 class="name">{{ u.name }}</h2>
+            <p class="email">{{ u.email }}</p>
+          </div>
+        </section>
+        }
+
+        <section class="playlists-section">
+          <div class="heading">
+            <a class="create-playlist-btn" routerLink="/playlist/create">
+              <lucide-icon name="music"></lucide-icon>
+              <span>Criar playlist</span>
+            </a>
+            <h2 class="section-title">{{ label$ | async }}</h2>
+          </div>
+          <ion-grid #gridPlaylists class="grid-playlists">
+            <ion-row>
+              @for (p of (playlists$ | async); track p._id) {
+              <ion-col size="12" size-md="6" size-lg="4">
+                <a class="playlist-card" [routerLink]="['/playlist', p._id]">
+                  <div class="thumb">
+                    <img [src]="p.firstSong.thumbnail" [alt]="p.name + ' cover'" />
+                  </div>
+                  <div class="text">
+                    <h3 class="title">{{ p.name }}</h3>
+                    <p class="subtitle">{{ p.songs.length || 0 }} músicas</p>
+                    @if (p.firstSong) {
+                    <p class="artist">
+                      Primeira: {{ p.firstSong.title }} – {{ p.firstSong.artist }}
+                    </p>
+                    }
+                  </div>
+                  <ion-button
+                    fill="clear"
+                    class="icon-btn delete-btn"
+                    title="Excluir playlist"
+                    (click)="onDeletePlaylist($event, p._id)"
+                  >
+                    <lucide-icon name="x"></lucide-icon>
+                  </ion-button>
+                </a>
+              </ion-col>
+              }
+              <ion-col size="12">
+                <div #infiniteSentinel class="infinite-sentinel" aria-hidden="true"></div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </section>
+    </div>
+  </main>
+</ion-content>

@@ -1,0 +1,84 @@
+@use "../../../../styles/tokens" as *;
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+}
+
+.modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 520px);
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  z-index: 2001;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-3 $space-4;
+  border-bottom: 1px solid $color-border;
+}
+.title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+}
+.title-wrap lucide-icon {
+  color: $color-primary;
+  width: 18px;
+  height: 18px;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: $fs-md;
+  color: $color-text;
+}
+.close {
+  height: 32px;
+  width: 32px;
+}
+
+.modal-body {
+  padding: $space-4;
+  color: $color-text;
+}
+.msg-list {
+  margin: 0;
+  padding-left: $space-4;
+}
+.msg {
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  border-top: 1px solid $color-border;
+}
+.btn {
+  padding: $space-2 $space-4;
+  border-radius: $radius-full;
+  background: $color-primary;
+  color: #000;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 100ms ease;
+}
+.btn:hover {
+  background: $color-primary-600;
+}
+.btn:active {
+  transform: translateY(1px);
+}

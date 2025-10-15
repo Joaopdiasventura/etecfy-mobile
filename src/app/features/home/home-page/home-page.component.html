@@ -1,0 +1,42 @@
+<ion-content fullscreen>
+  <app-header (searchEvent)="onSearchChange($event)"></app-header>
+  <main class="content">
+    <div class="container">
+      @let loadingInitial = (loadingInitial$ | async); @let loadingMore =
+      (loadingMore$ | async); @let songs = (songs$ | async); @let label =
+      (label$ | async);
+      <h2 class="section-title">{{ label }}</h2>
+
+      <ion-grid class="grid-cards" #gridCards>
+        <ion-row>
+          @for (song of songs; track song._id; let i = $index) {
+          <ion-col size="12" size-md="6" size-lg="4">
+            <app-song-card
+              [song]="song"
+              [index]="i"
+              [isPlaying]="currentPlayerConfig.isPlaying && isCurrentSong(song)"
+              (playEvent)="handleCardPlay($event)"
+            ></app-song-card>
+          </ion-col>
+          } @if ((loadingInitial && (!songs || songs.length === 0)) ||
+          loadingMore) { @for (n of skeletons; track n) {
+          <ion-col size="12" size-md="6" size-lg="4">
+            <div class="song-skeleton">
+              <div class="thumb-skel skeleton"></div>
+              <div class="meta-skel">
+                <div class="line w-60 skeleton"></div>
+                <div class="line w-40 skeleton"></div>
+                <div class="line w-48 skeleton"></div>
+              </div>
+              <div class="duration-skel line w-20 skeleton"></div>
+            </div>
+          </ion-col>
+          } }
+          <ion-col size="12">
+            <div #infiniteSentinel class="infinite-sentinel" aria-hidden="true"></div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </main>
+</ion-content>

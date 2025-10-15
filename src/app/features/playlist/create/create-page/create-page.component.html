@@ -1,0 +1,73 @@
+<app-header (searchEvent)="onSearchChange($event)"></app-header>
+
+<ion-content fullscreen>
+<main class="create-playlist">
+  <div class="container">
+    <h2>Criar playlist</h2>
+
+    <form [formGroup]="form" class="create-playlist-form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="name">Nome da playlist</label>
+        <ion-input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Ex.: Minhas Favoritas"
+        ></ion-input>
+      </div>
+
+      <div class="actions">
+        <ion-button type="button" class="btn secondary" (click)="cancel()" fill="clear">
+          Cancelar
+        </ion-button>
+        <ion-button
+          type="submit"
+          class="btn primary"
+          [disabled]="selectedCount() === 0 || form.invalid"
+        >
+          Criar ({{ selectedCount() }} selecionadas)
+        </ion-button>
+      </div>
+    </form>
+
+    <p class="hint">Você poderá adicionar músicas após criar a playlist.</p>
+
+    <section class="songs-section">
+      <h3>Selecione as músicas</h3>
+      <div #gridSongs class="grid-songs">
+        @let loadingInitial = (loadingInitial$ | async); @let loadingMore =
+        (loadingMore$ | async); @for (song of (songs$ | async); track song._id)
+        {
+        <label class="select-song-card">
+          <ion-checkbox
+            [checked]="isSelected(song)"
+            (ionChange)="onToggleSelect(song, $any($event).detail.checked)"
+          ></ion-checkbox>
+          <div class="thumb">
+            <img [src]="song.thumbnail" [alt]="song.title + ' album cover'" />
+          </div>
+          <div class="meta">
+            <div class="row1">
+              <span class="title">{{ song.title }}</span>
+              <span class="duration">{{ formatDuration(song.duration) }}</span>
+            </div>
+            <div class="row2">
+              <span class="artist">{{ song.artist }}</span>
+              @if (song.description) {
+              <span class="desc">{{ song.description }}</span> }
+            </div>
+          </div>
+        </label>
+        } @if (loadingInitial || loadingMore) {
+        <div class="list-skeleton">Carregando...</div>
+        }
+        <div
+          #infiniteSentinel
+          class="infinite-sentinel"
+          aria-hidden="true"
+        ></div>
+      </div>
+    </section>
+  </div>
+</main>
+</ion-content>

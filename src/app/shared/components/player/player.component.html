@@ -1,0 +1,160 @@
+<audio #audio controls style="display: none"></audio>
+
+@if (currentSong) {
+<div class="player">
+  <div class="player-header">
+    <h4>Tocando agora</h4>
+    <div class="header-actions">
+      <ion-button
+        fill="clear"
+        class="expand-btn"
+        (click)="toggleExpanded()"
+        [title]="expanded() ? 'Fechar modo expandido' : 'Expandir'"
+      >
+        <lucide-icon
+          [name]="expanded() ? 'minimize-2' : 'maximize-2'"
+        ></lucide-icon>
+      </ion-button>
+      <ion-button
+        fill="clear"
+        class="close-btn"
+        (click)="onClose()"
+        title="Parar e fechar player"
+      >
+        <lucide-icon name="x"></lucide-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <div class="left">
+    <img
+      [src]="currentSong.thumbnail"
+      [alt]="currentSong.title + ' album cover'"
+    />
+    <div class="text">
+      <h4 class="title">{{ currentSong.title }}</h4>
+      <p class="artist">{{ currentSong.artist }}</p>
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="controls-row">
+      <ion-button
+        fill="clear"
+        [ngClass]="['icon-btn', shuffle() ? 'active' : 'default']"
+        (click)="toggleShuffle()"
+      >
+        <lucide-icon name="shuffle"></lucide-icon>
+      </ion-button>
+      <ion-button fill="clear" class="icon-btn" (click)="onPrev()" [disabled]="!canPrev">
+        <lucide-icon name="skip-back"></lucide-icon>
+      </ion-button>
+      <ion-button fill="clear" class="play-btn lg" (click)="onPlayPause()">
+        <lucide-icon [name]="isPlaying ? 'pause' : 'play'"></lucide-icon>
+      </ion-button>
+      <ion-button fill="clear" class="icon-btn" (click)="onNext()" [disabled]="!canNext">
+        <lucide-icon name="skip-forward"></lucide-icon>
+      </ion-button>
+      <ion-button
+        fill="clear"
+        [ngClass]="['icon-btn', loop() ? 'active' : 'default']"
+        (click)="toggleLoop()"
+      >
+        <lucide-icon name="repeat"></lucide-icon>
+      </ion-button>
+    </div>
+    <div class="progress-row">
+      <span class="time">{{ formatTime(currentTime()) }}</span>
+      <ion-range color="primary"
+        [min]="0"
+        [max]="currentSong.duration"
+        [value]="currentTime()"
+        (ionChange)="onSeek(+$any($event).detail.value)"
+      ></ion-range>
+      <span class="time">{{ formatTime(currentSong.duration) }}</span>
+    </div>
+  </div>
+
+  <div class="right">
+    <lucide-icon name="volume-2"></lucide-icon>
+    <ion-range color="primary"
+      [value]="volume() * 100"
+      [min]="0"
+      [max]="100"
+      [step]="1"
+      (ionChange)="onVolumeChange((+$any($event).detail.value) / 100)"
+    ></ion-range>
+  </div>
+</div>
+} @if (overlayVisible() && currentSong) {
+<div class="player-overlay" [class.open]="overlayOpen()">
+  <div class="overlay-header">
+    <ion-button fill="clear" class="icon-btn" (click)="onClose()" title="Parar e fechar player">
+      <lucide-icon name="x"></lucide-icon>
+    </ion-button>
+    <div class="spacer"></div>
+    <ion-button fill="clear" class="icon-btn" (click)="toggleExpanded()" title="Voltar">
+      <lucide-icon name="minimize-2"></lucide-icon>
+    </ion-button>
+  </div>
+
+  <div class="overlay-content">
+    <div class="cover">
+      <img
+        [src]="currentSong.thumbnail"
+        [alt]="currentSong.title + ' album cover'"
+      />
+    </div>
+    <div class="meta">
+      <h2 class="title">{{ currentSong.title }}</h2>
+      <p class="artist">{{ currentSong.artist }}</p>
+      @if (currentSong.description) {
+      <p class="description">{{ currentSong.description }}</p>
+      }
+    </div>
+    <div class="overlay-controls">
+      <div class="controls-row">
+        <ion-button
+          fill="clear"
+          [ngClass]="['icon-btn', shuffle() ? 'active' : 'default']"
+          (click)="toggleShuffle()"
+        >
+          <lucide-icon name="shuffle"></lucide-icon>
+        </ion-button>
+        <ion-button fill="clear" class="icon-btn" (click)="onPrev()" [disabled]="!canPrev">
+          <lucide-icon name="skip-back"></lucide-icon>
+        </ion-button>
+        <ion-button fill="clear" class="play-btn lg" (click)="onPlayPause()">
+          <lucide-icon [name]="isPlaying ? 'pause' : 'play'"></lucide-icon>
+        </ion-button>
+        <ion-button fill="clear" class="icon-btn" (click)="onNext()" [disabled]="!canNext">
+          <lucide-icon name="skip-forward"></lucide-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          [ngClass]="['icon-btn', loop() ? 'active' : 'default']"
+          (click)="toggleLoop()"
+        >
+          <lucide-icon name="repeat"></lucide-icon>
+        </ion-button>
+      </div>
+      <div class="progress-row">
+        <span class="time">{{ formatTime(currentTime()) }}</span>
+        <ion-range color="primary"
+          [min]="0"
+          [max]="currentSong.duration"
+          [value]="currentTime()"
+          (ionChange)="onSeek(+$any($event).detail.value)"
+        ></ion-range>
+        <span class="time">{{ formatTime(currentSong.duration) }}</span>
+      </div>
+    </div>
+    @if (currentSong.lyrics) {
+    <div class="lyrics">
+      <h3>Letras</h3>
+      <div class="lyrics-text">{{ currentSong.lyrics }}</div>
+    </div>
+    }
+  </div>
+</div>
+}

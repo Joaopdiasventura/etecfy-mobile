@@ -1,0 +1,19 @@
+<ion-card class="song-card" (click)="onPlayClick()">
+  <div class="thumb">
+    <img [src]="song.thumbnail" [alt]="song.title + ' album cover'" />
+    @if (!isPlaying) {
+    <div class="thumb-overlay">
+      <ion-button class="play-btn" fill="clear">
+        <lucide-icon name="play"></lucide-icon>
+      </ion-button>
+    </div>
+    }
+  </div>
+
+  <div class="meta">
+    <h3 class="title">{{ song.title }}</h3>
+    <p class="artist">{{ song.artist }}</p>
+  </div>
+
+  <div class="duration">{{ formatedDuration }}</div>
+</ion-card>

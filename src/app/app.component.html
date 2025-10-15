@@ -1,0 +1,19 @@
+<ion-app>
+  <ion-menu contentId="main-content" menuId="main" type="overlay">
+    <ion-content>
+      <app-sidebar></app-sidebar>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+  @if (playerConfig()) {
+  <app-player
+    [playlist]="playerConfig()!.playlist"
+    [currentIndex]="playerConfig()!.currentIndex"
+    [isPlaying]="playerConfig()!.isPlaying"
+    (playEvent)="playerConfig()!.playEvent($event)"
+    (closeEvent)="playerConfig()!.closeEvent()"
+    (playingChange)="playerConfig()!.playingChange($event)"
+    (loadMore)="playerConfig()!.loadMore()"
+  ></app-player>
+  }
+</ion-app>

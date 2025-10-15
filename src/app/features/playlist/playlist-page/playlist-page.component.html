@@ -1,0 +1,24 @@
+<ion-content fullscreen>
+  <app-header [showSearch]="false"></app-header>
+  <main class="content">
+    <div class="container">
+      <h2 class="section-title">
+        {{ (playlist$ | async)?.name || "Playlist" }}
+      </h2>
+      <ion-grid class="grid-cards">
+        <ion-row>
+          @for (song of (songs$ | async); track song._id; let i = $index) {
+          <ion-col size="12" size-md="6" size-lg="4">
+            <app-song-card
+              [song]="song"
+              [index]="i"
+              [isPlaying]="currentPlayerConfig.isPlaying && isCurrentSong(song)"
+              (playEvent)="onPlayAll($event)"
+            ></app-song-card>
+          </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    </div>
+  </main>
+</ion-content>

@@ -1,0 +1,83 @@
+// Design tokens (SCSS variables only)
+@use 'sass:color';
+
+// Colors
+$color-bg: #0b0b0c;
+$color-surface: #121214;
+$color-elev: #1a1a1d;
+$color-border: #2a2a2e;
+
+// Primary (dark red)
+$color-primary: #8b0f0f;
+$color-primary-600: color.adjust($color-primary, $lightness: 6%);
+$color-primary-700: color.adjust($color-primary, $lightness: -6%);
+
+$color-text: #e6e6e9;
+$color-muted: #a9a9ad;
+
+// Spacing scale
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+
+// Radius
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 14px;
+$radius-full: 9999px;
+
+// Typography
+$font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+  Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+$fs-xs: 12px;
+$fs-sm: 14px;
+$fs-md: 16px;
+$fs-lg: 18px;
+
+// Layout
+$container: 1120px;
+
+// Breakpoints
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+$range-color: $color-primary;
+$range-bg: #000000;
+$range-height: 6px;
+$range-border: 1px;
+$thumb-size: 14px;
+
+// Mixins
+@mixin up($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+@mixin down($bp) {
+  @media (max-width: $bp) {
+    @content;
+  }
+}
+
+// Responsive gap helper
+@mixin gaps($mobile, $md: null, $lg: null) {
+  gap: $mobile;
+  @if $md != null {
+    @include up($bp-md) {
+      gap: $md;
+    }
+  }
+  @if $lg != null {
+    @include up($bp-lg) {
+      gap: $lg;
+    }
+  }
+}

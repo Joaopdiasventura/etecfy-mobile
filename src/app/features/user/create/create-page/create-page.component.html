@@ -1,0 +1,122 @@
+<ion-content fullscreen>
+  <section class="auth">
+    <div class="auth-card">
+      <div class="auth-header">
+        <ion-button fill="clear" class="back-button" routerLink="/home">
+          <lucide-icon name="chevron-left"></lucide-icon>
+        </ion-button>
+        <lucide-icon name="music"></lucide-icon>
+        <h1>Criar conta</h1>
+        <p>Comece sua jornada musical</p>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="name">Nome</label>
+        <div class="input-wrap">
+          <ion-input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Digite seu nome"
+          ></ion-input>
+        </div>
+        @if (f["name"].touched && f["name"].errors) {
+        <small class="error">
+          @switch (true) { @case (f["name"].errors['required']) {
+          <span>Informe seu nome.</span>
+          } @case (f["name"].errors['minlength']) {
+          <span>Mínimo de 2 caracteres.</span>
+          } }
+        </small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <div class="input-wrap">
+          <ion-input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Digite seu email"
+          ></ion-input>
+        </div>
+        @if (f["email"].touched && f["email"].errors) {
+        <small class="error">
+          @switch (true) { @case (f["email"].errors['required']) {
+          <span>Informe seu email.</span>
+          } @case (f["email"].errors['email']) {
+          <span>Email inválido.</span>
+          } }
+        </small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <div class="input-wrap">
+          <ion-input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Digite sua senha"
+          ></ion-input>
+        </div>
+
+        <div class="password-requirements">
+          <small class="requirements-title">Sua senha deve conter:</small>
+          <ul class="requirements-list">
+            <li>Mínimo 8 caracteres</li>
+            <li>Letra maiúscula (A-Z)</li>
+            <li>Letra minúscula (a-z)</li>
+            <li>Número (0-9)</li>
+            <li>Símbolo especial (!@#$% etc.)</li>
+          </ul>
+        </div>
+
+        @if (f["password"].touched && f["password"].errors) {
+        <small class="error">
+          @switch (true) { @case (f["password"].errors['required']) {
+          <span>Informe uma senha.</span>
+          } @case (f["password"].invalid) {
+          <span>A senha não atende aos requisitos.</span>
+          } }
+        </small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="confirm">Confirmar senha</label>
+        <div class="input-wrap">
+          <ion-input
+            id="confirm"
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Confirme sua senha"
+          ></ion-input>
+        </div>
+        @if ((form.touched && form.errors?.['mismatch']) ||
+        (f['confirmPassword'].touched && f['confirmPassword'].errors)) {
+        <small class="error">As senhas não conferem.</small>
+        }
+      </div>
+
+      <div class="actions">
+        <a routerLink="/user/login" class="muted">Já tenho conta</a>
+        <ion-button type="submit" [disabled]="loading() || !form.valid">
+          Criar conta
+        </ion-button>
+      </div>
+      </form>
+    </div>
+  </section>
+  @if (modalConfig()) {
+  <ion-alert
+    [isOpen]="true"
+    [header]="modalHeader"
+    [message]="modalMessage"
+    [buttons]="['Ok']"
+    (didDismiss)="modalConfig.set(null)"
+  ></ion-alert>
+  }
+</ion-content>

@@ -1,0 +1,84 @@
+<ion-content fullscreen>
+  <section class="auth">
+    <div class="auth-card">
+      <div class="auth-header">
+        <ion-button fill="clear" class="back-button" routerLink="/home">
+          <lucide-icon name="chevron-left"></lucide-icon>
+        </ion-button>
+        <lucide-icon name="music"></lucide-icon>
+        <h1>Entrar</h1>
+        <p>Acesse sua conta para continuar</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <ion-input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Digite seu email"
+            ></ion-input>
+          </div>
+          @if (f["email"].touched && f["email"].errors) {
+          <small class="error">
+            @switch (true) { @case (f["email"].errors['required']) {
+            <span>Informe seu email.</span>
+            } @case (f["email"].errors['email']) {
+            <span>Email inválido.</span>
+            } }
+          </small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Senha</label>
+          <div class="input-wrap">
+            <ion-input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="Digite sua senha"
+            ></ion-input>
+          </div>
+          @if (f['password'].touched && f['password'].errors) {
+          <small class="error">
+            @switch (true) { @case (f['password'].errors['required']) {
+            <span>Informe sua senha.</span>
+            } @case (f['password'].invalid) {
+            <span
+              >Digite uma senha com ao menos 8 caracteres, incluindo letras
+              maiúsculas, minúsculas, números e símbolos</span
+            >
+            } }
+          </small>
+          }
+        </div>
+
+        <div class="actions">
+          <a routerLink="user/reset-password" class="muted"
+            >Esqueci minha senha</a
+          >
+          <ion-button class="btn" type="submit" [disabled]="loading()"
+            >Entrar</ion-button
+          >
+        </div>
+      </form>
+
+      <div class="auth-footer">
+        <span>Não tem conta?</span>
+        <a routerLink="/user/create">Criar conta</a>
+      </div>
+    </div>
+  </section>
+  @if (modalConfig()) {
+  <ion-alert
+    [isOpen]="true"
+    [header]="modalHeader"
+    [message]="modalMessage"
+    [buttons]="['Ok']"
+    (didDismiss)="modalConfig.set(null)"
+  ></ion-alert>
+  }
+</ion-content>

@@ -1,0 +1,26 @@
+@use "../../../../../styles/tokens.scss" as *;
+
+@forward "../../login/login-page/login-page.component.scss";
+
+.password-requirements {
+  margin-top: 0.5rem;
+}
+
+.requirements-title {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requirements-list li {
+  font-size: 0.7rem;
+  color: #666;
+  line-height: 1.2;
+  margin-bottom: 0.1rem;
+}

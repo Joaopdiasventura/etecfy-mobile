@@ -1,0 +1,128 @@
+@use "../../../../styles/tokens" as *;
+
+:host {
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 100%;
+  min-height: 100vh;
+  background: $color-surface;
+  border-right: 1px solid $color-border;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $space-4;
+  border-bottom: 1px solid $color-border;
+  height: 7.2vh;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  color: $color-text;
+  @include gaps($space-2, $space-3);
+
+  lucide-icon {
+    color: $color-primary;
+    width: 24px;
+    height: 24px;
+  }
+
+  .brand-name {
+    font-weight: 600;
+  }
+}
+
+.close-btn {
+  color: $color-muted;
+  &:hover {
+    color: $color-text;
+    background: $color-elev;
+  }
+  @include up($bp-md) {
+    display: none;
+  }
+}
+
+.nav {
+  overflow: hidden;
+  padding: 0 $space-4;
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  padding: $space-3 0;
+  @include gaps($space-2, $space-3);
+}
+
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  padding: $space-3;
+  color: $color-muted;
+  border-radius: $radius-md;
+  transition: background-color 150ms ease, color 150ms ease;
+  @include gaps($space-2, $space-3);
+
+  &:hover {
+    background: $color-elev;
+    color: $color-text;
+  }
+
+  lucide-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.playlists {
+  overflow-x: hidden;
+  padding: 0 $space-4;
+  margin-top: $space-4;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.playlists-section {
+  display: flex;
+  flex-direction: column;
+  @include gaps($space-2, $space-3);
+}
+
+.playlist-item {
+  text-align: left;
+  padding: $space-2 $space-3;
+  color: $color-muted;
+  border-radius: $radius-sm;
+  font-size: $fs-sm;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover {
+    color: $color-text;
+    background: $color-elev;
+  }
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $space-4;
+  height: 8.5vh;
+  margin-bottom: $space-2;
+  margin-top: auto;
+
+  .primary {
+    background-color: $color-primary;
+  }
+}

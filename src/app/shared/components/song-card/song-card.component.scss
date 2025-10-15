@@ -1,0 +1,140 @@
+@use "../../../../styles/tokens" as *;
+
+ion-card.song-card {
+  --background: transparent;
+  --color: #{$color-text};
+  margin: 0;
+  box-shadow: none;
+}
+
+.song-card {
+  display: flex;
+  align-items: center;
+  padding: $space-3;
+  border-radius: $radius-lg;
+  background: transparent;
+  transition: background 150ms ease;
+  cursor: pointer;
+  @include gaps($space-2, $space-3);
+  // Wrap declarations to opt into new Sass mixed-decls behavior
+  & {
+    width: 100%;
+    min-width: 0; // allow children to shrink and ellipsize
+    overflow: hidden; // prevent horizontal overflow leaking to parent
+  }
+
+  &:hover {
+    background: rgba($color-elev, 0.65);
+  }
+}
+
+.thumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  @include up($bp-md) {
+    width: 64px;
+    height: 64px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .thumb-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .play-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-full;
+    background: $color-primary;
+    color: $color-text;
+    transition: background-color 150ms ease, transform 100ms ease;
+
+    &:hover {
+      background: $color-primary-600;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    lucide-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.song-card:hover .thumb .thumb-overlay {
+  opacity: 1;
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+  /* Ensure children can truncate with ellipsis */
+  overflow: hidden;
+}
+
+.title {
+  margin: 0;
+  color: $color-text;
+  font-size: $fs-sm;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+
+  @include up($bp-md) {
+    font-size: $fs-md;
+  }
+}
+
+.desc {
+  display: none;
+  @include up($bp-md) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    color: $color-muted;
+    font-size: $fs-sm;
+    margin: 2px 0;
+  }
+}
+
+.artist {
+  color: $color-muted;
+  font-size: $fs-xs;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.duration {
+  color: $color-muted;
+  font-size: $fs-sm;
+  flex-shrink: 0;
+}

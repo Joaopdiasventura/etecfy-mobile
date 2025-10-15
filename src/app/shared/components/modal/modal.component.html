@@ -1,0 +1,31 @@
+<div class="modal-overlay" (click)="onOverlayClick()"></div>
+<div
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal-header">
+    <div class="title-wrap">
+      <lucide-icon name="alert-circle"></lucide-icon>
+      <h3 id="modal-title">{{ config.title }}</h3>
+    </div>
+    <ion-button fill="clear" class="icon-btn close" aria-label="Fechar" (click)="close.emit()">
+      <lucide-icon name="x"></lucide-icon>
+    </ion-button>
+  </div>
+  <div class="modal-body">
+    @if (config.content) { @if (isArray(config.content)) {
+    <ul class="msg-list">
+      @for (m of config.content; track m) {
+      <li>{{ m }}</li>
+      }
+    </ul>
+    } @else {
+    <p class="msg">{{ config.content }}</p>
+    } }
+  </div>
+  <div class="modal-actions">
+    <ion-button (click)="close.emit()">Ok</ion-button>
+  </div>
+</div>
