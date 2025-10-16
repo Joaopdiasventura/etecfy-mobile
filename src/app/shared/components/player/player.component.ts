@@ -15,11 +15,13 @@ import {
   ViewChild,
 } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
+import { Capacitor } from '@capacitor/core';
 import { IonButton, IonRange } from '@ionic/angular/standalone';
 import { Subscription } from 'rxjs';
 import { Song } from '../../../core/models/song';
 import { SongChunk } from '../../../core/models/song-chunk';
 import { SongChunkService } from '../../../core/services/song-chunk/song-chunk.service';
+import { MediaSession as NativeMediaSession } from '@jofr/capacitor-media-session';
 
 type MediaSessionWithPosition = MediaSession & {
   setPositionState?: (state?: MediaPositionState) => void;
@@ -29,7 +31,7 @@ type MediaSessionWithPosition = MediaSession & {
   selector: 'app-player',
   imports: [LucideAngularModule, NgClass, IonButton, IonRange],
   templateUrl: './player.component.html',
-  styleUrls: ['./player.component.scss'],
+  styleUrl: './player.component.scss',
 })
 export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
   @Input({ required: true }) public playlist: Song[] | null = null;
@@ -76,7 +78,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
   private lastPlaylistLength = 0;
   private noMoreAfterLoad = false;
 
-  // Concurrency/session control fields
   private sessionId = 0;
   private activeFetchControllers = new Set<AbortController>();
   private chunksSub?: Subscription;
@@ -93,28 +94,33 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     if (!isPlatformBrowser(this.platform)) return;
   }
 
-  public ngAfterViewInit(): void {
+  public async ngAfterViewInit(): Promise<void> {
     if (!isPlatformBrowser(this.platform)) return;
     this.audio = this.audioRef.nativeElement;
     this.audio.volume = this.volume();
     this.audio.addEventListener('timeupdate', () => {
       this.currentTime.set(this.audio.currentTime);
       this.updateMediaSessionPosition();
+      this.updateNativePlaybackState();
     });
     this.audio.addEventListener('play', () => {
       this.isPlaying = true;
       this.updateMediaSessionPlaybackState();
       this.playingChange.emit(true);
+      this.updateNativePlaybackState();
     });
     this.audio.addEventListener('pause', () => {
       this.isPlaying = false;
       this.updateMediaSessionPlaybackState();
       this.playingChange.emit(false);
+      this.updateNativePlaybackState();
     });
     this.audio.addEventListener('ended', () => this.onAudioEnded());
     this.createMediaPipeline(0, this.sessionId);
-    this.setupMediaSession();
+    if (Capacitor.isNativePlatform()) await this.initNativeSession();
+    if (!Capacitor.isNativePlatform()) this.setupMediaSession();
     this.updateMediaSessionMetadata();
+    await this.updateNativeMetadata();
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
@@ -123,12 +129,10 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       const len = this.playlist?.length ?? 0;
       if (this.pendingAdvanceAfterLoad) {
         if (len > this.lastPlaylistLength) {
-          // Novos itens chegaram; tenta avançar
           this.noMoreAfterLoad = false;
           const nextIdx = this.computeNextIndex();
           if (nextIdx != null) {
             this.pendingAdvanceAfterLoad = false;
-            // ensure autoplay when new items were loaded
             this.isPlaying = true;
             this.updateMediaSessionPlaybackState();
             this.playingChange.emit(true);
@@ -137,12 +141,10 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
             return;
           }
         } else {
-          // Nada novo chegou
           this.noMoreAfterLoad = true;
           this.pendingAdvanceAfterLoad = false;
         }
       } else {
-        // Reinicia flag quando playlist cresce sem estar pendente
         if (len > this.lastPlaylistLength) this.noMoreAfterLoad = false;
       }
       this.lastPlaylistLength = len;
@@ -166,6 +168,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     this.playEvent.emit(this.currentIndex);
     this.updateMediaSessionPlaybackState();
     this.playingChange.emit(this.isPlaying);
+    this.updateNativePlaybackState();
   }
 
   public onSeek(t: number): void {
@@ -203,36 +206,32 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
-  // Fechar o player
   public onClose(): void {
-    // Para a reprodução
     if (this.audio) {
       this.audio.pause();
       this.isPlaying = false;
     }
-
-    // Limpa os recursos
     this.teardownMediaPipeline();
-
-    // Emite o evento para o componente pai
     this.closeEvent.emit();
     this.playingChange.emit(false);
+    this.updateNativePlaybackState();
   }
 
   private handleSongChange(): void {
     if (!this.currentSong) return;
-    // Bump session and cancel any pending work to avoid race conditions
     this.sessionId++;
     this.cancelPendingWork();
     this.teardownMediaPipeline();
     this.loadChunks(this.currentSong._id, 0, this.sessionId);
     this.updateMediaSessionMetadata();
+    this.updateNativeMetadata();
+    this.updateNativePlaybackState();
   }
 
   private rebuildOrder(): void {
     if (!this.playlist) return;
     const n = this.playlist.length;
-    if (n === 0) {
+    if (n == 0) {
       this.order = [];
       return;
     }
@@ -289,7 +288,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
 
   public get canPrev(): boolean {
     if (!this.audio) return this.computePrevIndex() !== null;
-    // allow going to start when > 3s
     if (this.audio.currentTime > 3) return true;
     return this.computePrevIndex() !== null;
   }
@@ -301,7 +299,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
     const newIndex = this.computePrevIndex();
-    if (newIndex === null) return;
+    if (newIndex == null) return;
     this.playEvent.emit(newIndex);
   }
 
@@ -309,7 +307,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.playlist || !this.playlist.length) return;
     const newIndex = this.computeNextIndex();
     if (newIndex == null) {
-      // Sem próxima música disponível; tenta auto-carregar
       if (!this.pendingAdvanceAfterLoad && !this.noMoreAfterLoad) {
         this.pendingAdvanceAfterLoad = true;
         this.lastPlaylistLength = this.playlist?.length ?? 0;
@@ -328,14 +325,12 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       return this.loop();
     })();
     if (hadNext) {
-      // force autoplay for the next track
       this.isPlaying = true;
       this.updateMediaSessionPlaybackState();
       this.playingChange.emit(true);
       this.onNext();
     } else {
       this.isPlaying = false;
-      // Auto-load quando acabar sem próxima
       if (!this.pendingAdvanceAfterLoad && !this.noMoreAfterLoad) {
         this.pendingAdvanceAfterLoad = true;
         this.lastPlaylistLength = this.playlist?.length ?? 0;
@@ -344,6 +339,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       this.updateMediaSessionPlaybackState();
       this.playingChange.emit(false);
     }
+    this.updateNativePlaybackState();
   }
 
   public toggleExpanded(): void {
@@ -352,8 +348,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     if (!isOpen) {
       this.expanded.set(true);
       this.overlayVisible.set(true);
-      // Wait next frame so CSS transitions can run
-      if (typeof requestAnimationFrame === 'function') {
+      if (typeof requestAnimationFrame == 'function') {
         requestAnimationFrame(() => this.overlayOpen.set(true));
       } else {
         setTimeout(() => this.overlayOpen.set(true), 0);
@@ -415,20 +410,15 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private teardownMediaPipeline(): void {
-    // cancel pending work and listeners
     this.cancelPendingWork();
     try {
       if (this.sourceBuffer && this.sourceBuffer.updating)
         this.sourceBuffer.abort();
-    } catch {
-      // ignore
-    }
+    } catch {}
     try {
       if (this.mediaSource && this.mediaSource.readyState !== 'closed')
         this.mediaSource.endOfStream();
-    } catch {
-      // ignore
-    }
+    } catch {}
     this.nextAppendScheduled = false;
     this.firstAppendDone = false;
     try {
@@ -477,6 +467,8 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
         this.totalDuration = acc;
         this.currentChunkIndex = this.findChunkByTime(seekTo);
         this.createMediaPipeline(seekTo, session);
+        await this.updateNativeMetadata();
+        this.updateNativePlaybackState();
       },
     });
   }
@@ -578,7 +570,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     return Math.max(0, this.chunkStarts.length - 1);
   }
 
-  // If the seek target is within or after the last chunk, snap to its start
   private clampToLastChunkStart(time: number): number {
     if (!this.chunkStarts.length) return time;
     const lastStart = this.chunkStarts[this.chunkStarts.length - 1] ?? 0;
@@ -618,7 +609,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
     this.nextAppendScheduled = false;
   }
 
-  // Media Session API integration (hardware/OS media controls)
   private setupMediaSession(): void {
     if (!isPlatformBrowser(this.platform)) return;
     const nav = (globalThis as unknown as { navigator?: Navigator }).navigator;
@@ -632,18 +622,18 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       ms.setActionHandler('nexttrack', () => this.onNext());
       ms.setActionHandler('seekto', (d: MediaSessionActionDetails) => {
         const t =
-          typeof d?.seekTime === 'number'
+          typeof d?.seekTime == 'number'
             ? d.seekTime
             : this.audio?.currentTime ?? 0;
         this.onSeek(t);
       });
       ms.setActionHandler('seekbackward', (d: MediaSessionActionDetails) => {
-        const off = typeof d?.seekOffset === 'number' ? d.seekOffset : 10;
+        const off = typeof d?.seekOffset == 'number' ? d.seekOffset : 10;
         const cur = this.audio?.currentTime ?? 0;
         this.onSeek(Math.max(0, cur - off));
       });
       ms.setActionHandler('seekforward', (d: MediaSessionActionDetails) => {
-        const off = typeof d?.seekOffset === 'number' ? d.seekOffset : 10;
+        const off = typeof d?.seekOffset == 'number' ? d.seekOffset : 10;
         const cur = this.audio?.currentTime ?? 0;
         const dur = this.currentSong?.duration ?? this.totalDuration;
         this.onSeek(Math.min(dur, cur + off));
@@ -717,6 +707,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       this.isPlaying = true;
       this.updateMediaSessionPlaybackState();
       this.playingChange.emit(true);
+      this.updateNativePlaybackState();
     }
   }
 
@@ -727,11 +718,88 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnChanges {
       this.isPlaying = false;
       this.updateMediaSessionPlaybackState();
       this.playingChange.emit(false);
+      this.updateNativePlaybackState();
     }
   }
 
+  private async initNativeSession(): Promise<void> {
+    try {
+      await NativeMediaSession.setActionHandler({ action: 'play' }, () =>
+        this.handleMediaPlay()
+      );
+      await NativeMediaSession.setActionHandler({ action: 'pause' }, () =>
+        this.handleMediaPause()
+      );
+      await NativeMediaSession.setActionHandler({ action: 'nexttrack' }, () =>
+        this.onNext()
+      );
+      await NativeMediaSession.setActionHandler(
+        { action: 'previoustrack' },
+        () => this.onPrev()
+      );
+      await NativeMediaSession.setActionHandler({ action: 'seekto' }, (d) =>
+        this.onSeek(
+          typeof d.seekTime === 'number'
+            ? d.seekTime
+            : this.audio?.currentTime ?? 0
+        )
+      );
+      await NativeMediaSession.setActionHandler(
+        { action: 'seekbackward' },
+        (d) => {
+          const off =
+            typeof (d as any).seekOffset === 'number'
+              ? (d as any).seekOffset
+              : 10;
+          const cur = this.audio?.currentTime ?? 0;
+          this.onSeek(Math.max(0, cur - off));
+        }
+      );
+      await NativeMediaSession.setActionHandler(
+        { action: 'seekforward' },
+        (d) => {
+          const off =
+            typeof (d as any).seekOffset === 'number'
+              ? (d as any).seekOffset
+              : 10;
+          const cur = this.audio?.currentTime ?? 0;
+          const dur = this.currentSong?.duration ?? this.totalDuration;
+          this.onSeek(Math.min(dur, cur + off));
+        }
+      );
+      await this.updateNativeMetadata();
+      this.updateNativePlaybackState();
+    } catch {}
+  }
+
+  private async updateNativeMetadata(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) return;
+    const s = this.currentSong;
+    try {
+      await NativeMediaSession.setMetadata({
+        title: s?.title ?? '',
+        artist: s?.artist ?? '',
+        album: '',
+        artwork: s?.thumbnail ? [{ src: s.thumbnail }] : [],
+      });
+    } catch {}
+  }
+
+  private updateNativePlaybackState(): void {
+    if (!Capacitor.isNativePlatform()) return;
+    try {
+      NativeMediaSession.setPlaybackState({
+        playbackState: this.isPlaying ? 'playing' : 'paused',
+      });
+      NativeMediaSession.setPositionState({
+        duration: this.currentSong?.duration ?? this.totalDuration ?? 0,
+        playbackRate: 1,
+        position: this.audio?.currentTime ?? 0,
+      });
+    } catch {}
+  } 
+
   private noop(e?: unknown): void {
-    // intentional no-op; reference param to satisfy lint
     void e;
   }
 }
